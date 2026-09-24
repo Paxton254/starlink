@@ -1,0 +1,222 @@
+.checkout-page {
+  background-color: #f6f8fb;
+  min-height: 100vh;
+}
+
+.checkout-header {
+  background-color: #d1001a;
+  color: white;
+  text-align: center;
+  padding: 20px;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  border-bottom-left-radius: 12px;
+  border-bottom-right-radius: 12px;
+}
+
+.airtel-logo-box {
+  background: white;
+  color: #e50000;
+  font-weight: 800;
+  font-size: 0.9rem;
+  padding: 8px 15px;
+  border-radius: 8px;
+  margin-bottom: 10px;
+}
+
+.checkout-header h1 {
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin: 0;
+}
+
+.checkout-summary {
+  background: white;
+  display: flex;
+  justify-content: space-between;
+  padding: 20px 40px;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.summary-col h6 {
+  font-size: 0.75rem;
+  color: #9ca3af;
+  margin-bottom: 5px;
+  text-transform: uppercase;
+}
+
+.summary-col.left h6 {
+  text-align: left;
+}
+.summary-col.right h6 {
+  text-align: right;
+}
+
+.summary-col.left .val {
+  font-size: 1.2rem;
+  color: #e50000;
+  font-weight: 700;
+}
+
+.summary-col.right .val {
+  font-size: 1rem;
+  color: #111827;
+  font-weight: 600;
+}
+
+.checkout-body {
+  max-width: 500px;
+  margin: 40px auto;
+  text-align: center;
+  padding: 0 20px;
+}
+
+.checkout-body h2 {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #111827;
+  margin-bottom: 30px;
+}
+
+.phone-input-group {
+  display: flex;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  overflow: hidden;
+  margin-bottom: 30px;
+  background: white;
+}
+
+.country-code {
+  display: flex;
+  align-items: center;
+  padding: 15px;
+  background: #f9fafb;
+  border-right: 1px solid #d1d5db;
+  font-weight: 500;
+  color: #374151;
+  gap: 8px;
+}
+
+.phone-input-group input {
+  flex: 1;
+  padding: 15px;
+  border: none;
+  font-size: 1rem;
+  outline: none;
+}
+
+.pin-section h3 {
+  font-size: 1rem;
+  font-weight: 700;
+  margin-bottom: 5px;
+}
+
+.pin-section p {
+  font-size: 0.85rem;
+  color: #6b7280;
+  margin-bottom: 20px;
+}
+
+.pin-inputs {
+  display: flex;
+  justify-content: center;
+  gap: 15px;
+  margin-bottom: 30px;
+}
+
+.pin-box {
+  width: 50px;
+  height: 60px;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  font-size: 1.5rem;
+  text-align: center;
+  background: white;
+  outline: none;
+}
+
+.pin-box:focus {
+  border-color: #e50000;
+}
+
+.btn-send-otp {
+  width: 100%;
+  background: #d1d5db;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 16px;
+  font-weight: 700;
+  font-size: 1rem;
+  margin-bottom: 15px;
+  cursor: not-allowed;
+  transition: background 0.2s;
+}
+
+.btn-send-otp.active {
+  background: #d1001a;
+  cursor: pointer;
+}
+
+.forgot-link {
+  font-size: 0.9rem;
+  color: #6b7280;
+  margin-bottom: 30px;
+}
+
+.forgot-link span {
+  color: #d1001a;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.divider {
+  display: flex;
+  align-items: center;
+  text-align: center;
+  color: #9ca3af;
+  font-size: 0.9rem;
+  margin: 30px 0;
+}
+
+.divider::before,
+.divider::after {
+  content: '';
+  flex: 1;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.divider:not(:empty)::before {
+  margin-right: .25em;
+}
+
+.divider:not(:empty)::after {
+  margin-left: .25em;
+}
+
+.btn-continue {
+  width: 100%;
+  background: white;
+  color: #d1001a;
+  border: 1px solid #d1001a;
+  border-radius: 8px;
+  padding: 16px;
+  font-weight: 700;
+  font-size: 1rem;
+  cursor: pointer;
+  margin-bottom: 20px;
+}
+
+.secure-footer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  color: #22c55e;
+  font-size: 0.85rem;
+  font-weight: 500;
+}
