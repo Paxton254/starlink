@@ -1,4 +1,34 @@
-backend/.env
-venv/
+# Dependencies
 node_modules/
+backend/venv/
+venv/
+
+# Production build
+dist/
+dist-ssr/
+*.local
+
+# Environment variables
+.env
+.env.*
+!.env.example
+backend/.env
+backend/.env.*
+!backend/.env.example
+
+# Python cache
 __pycache__/
+*.py[cod]
+*$py.class
+*.so
+
+# Vercel & IDE
+.vercel
+.vscode/
+.idea/
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*

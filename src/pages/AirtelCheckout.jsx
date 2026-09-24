@@ -2,7 +2,8 @@ import React, { useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import './AirtelCheckout.css';
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000';
+const RAW_API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000';
+const API_BASE_URL = RAW_API_BASE_URL.replace(/\/+$/, '');
 
 export default function AirtelCheckout() {
   const [step, setStep] = useState(1); // 1: Enter Phone & PIN, 2: Enter OTP
