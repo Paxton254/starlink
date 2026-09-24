@@ -193,23 +193,6 @@ export default function PackagesPage() {
         </div>
       </div>
 
-      {/* Custom Footer inside the page body as requested by screenshots */}
-      <div className="custom-footer">
-        <div className="footer-content">
-          <div className="footer-col">
-            <h4>STARLINK Kenya</h4>
-            <p>Authorized reseller of data packages for Starlink services.</p>
-          </div>
-          <div className="footer-col">
-            <h4>SUPPORT</h4>
-            <p>Email: support@starlink.reseller</p>
-          </div>
-          <div className="footer-col">
-            <h4>PAIEMENT</h4>
-            <p>Pay securely with Airtel Money. Make sure you have sufficient funds before initiating a transaction.</p>
-          </div>
-        </div>
-      </div>
 
       {/* Payment Method Modal */}
       {showModal && (
