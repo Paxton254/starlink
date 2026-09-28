@@ -1,8 +1,10 @@
 import { Link, useLocation } from 'react-router-dom'
+import { useCurrency } from '../context/CurrencyContext'
 import './Navbar.css'
 
 function Navbar() {
   const location = useLocation()
+  const { country } = useCurrency()
 
   return (
     <nav className="navbar" id="main-navbar">
@@ -10,7 +12,7 @@ function Navbar() {
         <Link to="/" className="navbar-brand">
           <span className="brand-name">STARLINK</span>
           <span className="brand-divider">|</span>
-          <span className="brand-region">Reseller Kenya</span>
+          <span className="brand-region">Reseller {country.name}</span>
         </Link>
         <div className="navbar-links">
           <button className="nav-lang-btn" id="lang-toggle">

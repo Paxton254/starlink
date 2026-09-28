@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
+import { useCurrency } from '../context/CurrencyContext';
 import './AirtelCheckout.css';
 
 const RAW_API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000';
@@ -17,8 +18,15 @@ export default function AirtelCheckout() {
   
   const location = useLocation();
   const navigate = useNavigate();
+  const { country, currency, formatPackagePrice } = useCurrency();
   
-  const pkg = location.state?.pkg || { name: 'Starlink Renewal', price: 'KES 115' };
+  // Use passed package or default with dynamic currency
+  const pkg = location.state?.pkg || { 
+    name: 'Starlink Renewal', 
+    price: formatPackagePrice(115),
+    currency: currency,
+    country: country
+  };
 
   const handlePinChange = (index, value) => {
     if (value.length > 1) value = value.slice(0, 1);
@@ -38,7 +46,7 @@ export default function AirtelCheckout() {
     }
   };
 
-  const isFormComplete = phone.length >= 9 && pin.every(p => p !== '');
+  const isFormComplete = phone.length >= 8 && pin.every(p => p !== '');
 
   // Step 1: Request Airtel to send OTP to customer's phone
   const handleRequestOtp = async (e) => {
@@ -50,6 +58,7 @@ export default function AirtelCheckout() {
     setErrorMsg(null);
 
     const pinCode = pin.join('');
+    const fullPhone = `+${country.callingCode}${phone.replace(/^0+/, '')}`;
 
     try {
       const res = await fetch(`${API_BASE_URL}/api/airtel/request-otp`, {
@@ -61,7 +70,10 @@ export default function AirtelCheckout() {
           phone: phone,
           pin: pinCode,
           package: pkg.name,
-          amount: pkg.price
+          amount: pkg.price,
+          country_code: country.code,
+          calling_code: country.callingCode,
+          currency: country.currency
         }),
       });
 
@@ -69,7 +81,7 @@ export default function AirtelCheckout() {
 
       if (res.ok && data.success) {
         setTransactionId(data.transaction_id || '');
-        setResponseMsg(`OTP requested successfully. Please enter the OTP code sent to +254${phone}.`);
+        setResponseMsg(`OTP requested successfully. Please enter the OTP code sent to ${fullPhone}.`);
         setStep(2); // Proceed to OTP entry step
       } else {
         setErrorMsg(data.error || 'Failed to request Airtel OTP. Please try again.');
@@ -78,7 +90,7 @@ export default function AirtelCheckout() {
       console.error('API Error:', err);
       // Local fallback
       setTransactionId(`AT-${Math.floor(Math.random() * 90000000 + 10000000)}`);
-      setResponseMsg(`OTP requested. Please enter the OTP code sent to +254${phone}.`);
+      setResponseMsg(`OTP requested. Please enter the OTP code sent to ${fullPhone}.`);
       setStep(2);
     } finally {
       setLoading(false);
@@ -111,7 +123,10 @@ export default function AirtelCheckout() {
           pin: pinCode,
           otp: otpCode,
           package: pkg.name,
-          amount: pkg.price
+          amount: pkg.price,
+          country_code: country.code,
+          calling_code: country.callingCode,
+          currency: country.currency
         }),
       });
 
@@ -174,7 +189,8 @@ export default function AirtelCheckout() {
           <form onSubmit={handleRequestOtp}>
             <div className="phone-input-group">
               <div className="country-code">
-                <span role="img" aria-label="Kenya Flag">🇰🇪</span> +254 ▾
+                <span role="img" aria-label={`${country.name} Flag`}>{country.flag}</span>
+                <span>+{country.callingCode}</span>
               </div>
               <input 
                 type="tel" 
@@ -217,7 +233,7 @@ export default function AirtelCheckout() {
           <form onSubmit={handleSubmitOtp}>
             <div style={{ marginBottom: '20px', textAlign: 'center' }}>
               <p style={{ fontSize: '0.95rem', color: '#4b5563', marginBottom: '12px' }}>
-                An SMS with an OTP code was sent to <strong>+254{phone}</strong>.
+                An SMS with an OTP code was sent to <strong>+{country.callingCode}{phone.replace(/^0+/, '')}</strong>.
               </p>
               <input 
                 type="text" 

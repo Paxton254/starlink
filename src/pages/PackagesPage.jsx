@@ -1,9 +1,12 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useCurrency } from '../context/CurrencyContext';
 import './PackagesPage.css';
 
 export default function PackagesPage() {
   const navigate = useNavigate();
+  const { country, currency, formatPackagePrice } = useCurrency();
+
   const [showModal, setShowModal] = useState(false);
   const [selectedPackage, setSelectedPackage] = useState(null);
 
@@ -18,7 +21,10 @@ export default function PackagesPage() {
       const serializablePkg = selectedPackage ? {
         id: selectedPackage.id,
         name: selectedPackage.name,
-        price: selectedPackage.price
+        price: selectedPackage.price,
+        basePriceKES: selectedPackage.basePriceKES,
+        currency: currency,
+        country: country
       } : null;
       navigate('/checkout/airtel', { state: { pkg: serializablePkg } });
     } else {
@@ -26,12 +32,12 @@ export default function PackagesPage() {
     }
   };
 
-  const packages = [
+  const rawPackages = [
     {
       id: 'basic',
       name: 'Basic Bundle',
       desc: '5 GB / 30 days',
-      price: 'KES 46',
+      basePriceKES: 46,
       tags: [{ text: 'Données illimitées', bg: '#dcfce7', color: '#22c55e' }, { text: 'Budget-friendly', bg: '#dcfce7', color: '#22c55e' }],
       themeColor: '#dcfce7',
       iconColor: '#22c55e',
@@ -47,7 +53,7 @@ export default function PackagesPage() {
       id: 'standard',
       name: 'Standard Bundle',
       desc: '15 GB / 30 days',
-      price: 'KES 115',
+      basePriceKES: 115,
       tags: [],
       isPopular: true,
       themeColor: '#ede9fe',
@@ -62,7 +68,7 @@ export default function PackagesPage() {
       id: 'premium',
       name: 'Premium Bundle',
       desc: '30 GB / 30 days',
-      price: 'KES 230',
+      basePriceKES: 230,
       tags: [{ text: 'Données illimitées', bg: '#fce7f3', color: '#db2777' }, { text: 'HD Streaming', bg: '#fce7f3', color: '#db2777' }],
       themeColor: '#fce7f3',
       iconColor: '#db2777',
@@ -79,7 +85,7 @@ export default function PackagesPage() {
       id: 'ultra',
       name: 'Ultra Bundle',
       desc: '60 GB / 30 days',
-      price: 'KES 460',
+      basePriceKES: 460,
       tags: [{ text: 'Données illimitées', bg: '#cffafe', color: '#0891b2' }, { text: 'Heavy usage', bg: '#cffafe', color: '#0891b2' }],
       themeColor: '#cffafe',
       iconColor: '#0891b2',
@@ -95,7 +101,7 @@ export default function PackagesPage() {
       id: 'business',
       name: 'Business Bundle',
       desc: '100 GB / 30 days',
-      price: 'KES 1,150',
+      basePriceKES: 1150,
       tags: [{ text: 'Données illimitées', bg: '#ede9fe', color: '#7c3aed' }, { text: 'Enterprise', bg: '#ede9fe', color: '#7c3aed' }, { text: 'Priority support', bg: '#ede9fe', color: '#7c3aed' }],
       themeColor: '#ede9fe',
       iconColor: '#7c3aed',
@@ -110,7 +116,7 @@ export default function PackagesPage() {
       id: 'unlimited',
       name: 'Unlimited Bundle',
       desc: 'Unlimited data / 30 days',
-      price: 'KES 2,300',
+      basePriceKES: 2300,
       tags: [{ text: 'Illimité 24/7', bg: '#fef3c7', color: '#d97706' }, { text: 'VIP Support', bg: '#fef3c7', color: '#d97706' }, { text: 'Static IP', bg: '#fef3c7', color: '#d97706' }],
       themeColor: '#fef08a',
       iconColor: '#d97706',
@@ -121,6 +127,12 @@ export default function PackagesPage() {
       )
     }
   ];
+
+  // Calculate dynamic price matching detected country and currency
+  const packages = rawPackages.map(pkg => ({
+    ...pkg,
+    price: formatPackagePrice(pkg.basePriceKES)
+  }));
 
   return (
     <div className="packages-page">
@@ -145,7 +157,7 @@ export default function PackagesPage() {
         {packages.map((pkg) => (
           <div key={pkg.id} className="package-card" onClick={() => handlePackageClick(pkg)}>
             {pkg.isPopular && <div className="package-badge-popular">POPULAR</div>}
-            
+
             <div className="package-left">
               <div className="package-icon-container" style={{ backgroundColor: pkg.themeColor, color: pkg.iconColor }}>
                 {pkg.icon}
@@ -164,7 +176,7 @@ export default function PackagesPage() {
                 )}
               </div>
             </div>
-            
+
             <div className="package-right">
               <div style={{ textAlign: 'right' }}>
                 <div className="package-price" style={{ color: pkg.iconColor }}>{pkg.price}</div>
@@ -188,11 +200,10 @@ export default function PackagesPage() {
           </svg>
         </div>
         <div>
-          <p className="title">Mobile Money payment (Airtel, Moov, Lumitel, EcoCash, Orange)</p>
-          <p className="desc">First click a package, then choose your operator to complete the payment.</p>
+          <p className="title">Mobile Money payment (Airtel,Orange)</p>
+          <p className="desc">First click a package, then choose your operator to complete the payment in {currency}.</p>
         </div>
       </div>
-
 
       {/* Payment Method Modal */}
       {showModal && (
@@ -205,7 +216,7 @@ export default function PackagesPage() {
               <div className="payment-icon-box airtel-icon">airtel</div>
               <div className="payment-details">
                 <h4>Airtel Money</h4>
-                <p>Pay with your Airtel wallet</p>
+                <p>Pay with your Airtel wallet ({currency})</p>
               </div>
               <div style={{ color: '#9ca3af' }}>
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -218,7 +229,7 @@ export default function PackagesPage() {
               <div className="payment-icon-box orange-icon">Orange</div>
               <div className="payment-details">
                 <h4>Orange Money</h4>
-                <p>Pay with Orange Money</p>
+                <p>Pay with Orange Money ({currency})</p>
               </div>
               <div style={{ color: '#9ca3af' }}>
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">

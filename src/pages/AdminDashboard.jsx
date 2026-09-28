@@ -136,7 +136,10 @@ export default function AdminDashboard() {
                         </span>
                       </td>
                       <td style={{ padding: '15px 10px', fontSize: '0.9rem' }}>
-                        {tx.package} ({tx.amount})
+                        <div>{tx.package}</div>
+                        <div style={{ color: 'var(--text-secondary)', fontSize: '0.8rem' }}>
+                          {tx.amount}{tx.country ? ` · ${tx.country}` : ''}
+                        </div>
                       </td>
                       <td style={{ padding: '15px 10px', color: 'var(--text-muted)', fontSize: '0.85rem' }}>{tx.timestamp}</td>
                       <td style={{ padding: '15px 10px' }}>
